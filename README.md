@@ -35,11 +35,6 @@ This package contains some simple case class models, already defined, to help yo
 have a `Position` on a `GameGrid`, as well as holder of a possible `Marker` (an `X` or an `O` marked for a player).
 There is also a `Move` model, to possibly place a `Marker` at a `Cell`s `Position`.
 
-### exceptions
-This package contains a small file with a collection of custom `Exceptions` that could be used as inspiration 
-for flow control.
-
-
 ## A general note
 
 As an example of the general pattern, we will look at the trait for `GameGrid` 
