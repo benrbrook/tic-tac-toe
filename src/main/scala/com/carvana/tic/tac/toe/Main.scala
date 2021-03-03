@@ -53,10 +53,7 @@ trait GamePlayLogic {
    * @param ioOperator The method we are getting input to make Moves for a User
    * @return
    */
-  @tailrec
-  final def playGame(game: Game)(ioOperator: TicTacIO): Option[Player] = {
-    ???
-  }
+  final def playGame(game: Game)(ioOperator: TicTacIO): Option[Player] = ???
 
 }
 
