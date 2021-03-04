@@ -11,6 +11,14 @@ The goal is to implement our `Main` method and all the plumbing, which will recu
 consisting of `Players`, `GameBoards` and `GameGrids` until the `Game` ends with a winner, or tie if no moves
 are remaining.
 
+If you're brand new to Scala - please take time to learn some basics.  If you get stuck - please ask us questions!  Asking questions is not considered a bad thing in any way!
+
+Please note - there are optional goals that you can choose to implement. That's completely up to you if you feel you have time or want the challenge.
+
+Once complete, we will schedule a code review with you to discuss your solution.
+
+Please notify your recruiter when you are complete.
+
 ## Getting Started
 
 To get started - please be sure to fork this repository and do your work in your own repo.  When you are done, send a public link to your repo so we can assess your efforts.
