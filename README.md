@@ -15,11 +15,25 @@ are remaining.
 
 To get started - please be sure to fork this repository and do your work in your own repo.  When you are done, send a public link to your repo so we can assess your efforts.
 
-You may use any editor/IDE that you prefer to accomplish the task.
+You may use any editor/IDE that you prefer to accomplish the task, but we have some notes about getting set up with IntelliJ Idea below.
 
 You probably must have SBT (https://www.scala-sbt.org/download.html) installed at the bare minimum as this project is built with SBT.
 
 A JDK is also required. (JDK 13 or 15)
+
+### IntelliJ Idea (Community Edition)
+
+The easiest way to install/manage an IDE from IntelliJ is via the Jetbrains Toolbox - https://www.jetbrains.com/toolbox-app/, but you can also
+directly download from https://www.jetbrains.com/idea/download/
+
+You will want to add the Scala plugin - the installation process typical asks if you want to install this as part of the set up, but
+you can also search for plugins to install in the IDE settings, or visit the link directly: https://plugins.jetbrains.com/plugin/1347-scala.
+Some official IDE documentation can be found at: https://www.jetbrains.com/help/idea/discover-intellij-idea-for-scala.html
+
+If you do not have a JDK set up, you can use Idea to manage one/several for you. The official documentation can be found 
+at: https://www.jetbrains.com/help/idea/sdk.html You can install a Scala SDK similarly, if needed.
+
+You can also find some SBT + Idea info at: https://www.jetbrains.com/help/idea/sbt-support.html#manage_sbt_projects
 
 ## Overview of packages
 
@@ -74,7 +88,19 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell]) extends GameGri
 There are three test suites to make green: `GameSpec` has some tests defined, and ready to run upon implementation. `GameBoardSpec` has some tests described,
 but need to be implemented, and `GameGridSpec` needs tests defined and implemented.
 
-## Extra Credit
+## Optional Extras
 
 * Add and implement [LazyLogging](https://github.com/lightbend/scala-logging) as a dependency, to log what's going on in the background as state is being mutated.
 * Make some custom components that aren't so classic (e.g. a dimension=9 GameGrid)
+
+## Useful Scala Documentation Links
+
+Here are a few useful links to Scala's docs/scala-book for some general Scala examples that might be helpful, but the
+whole site is full of excellent info: https://docs.scala-lang.org/overviews/scala-book/prelude-taste-of-scala.html
+
+
+* https://docs.scala-lang.org/overviews/scala-book/match-expressions.html
+* https://docs.scala-lang.org/overviews/scala-book/case-classes.html
+* https://docs.scala-lang.org/overviews/scala-book/functional-error-handling.html
+
+Also, here is a good review of Tail-Recursive Algorithms in Scala: https://alvinalexander.com/scala/fp-book/tail-recursive-algorithms/
