@@ -57,24 +57,27 @@ case class ClassicGame(gameBoard: GameBoard, playerQueue: LazyList[Player])
       move: Move
   ): Try[Either[Option[Player], Game]] = {
     if (gameBoard.isMoveValid(move)) {
-      val moveResult = if (gameBoard.isGameOver) {
-        val winningPlayer = gameBoard.winningMarker match {
+      val nextGameBoard = gameBoard.makeMove(move)
+      val nextGame = copy(
+        gameBoard = nextGameBoard,
+        playerQueue = playerQueue.tail :+ currentPlayer
+      )
+
+      if (nextGameBoard.isGameOver) {
+        Success(Left(nextGameBoard.winningMarker match {
           case Some(marker) =>
             playerQueue.find(player => player.marker == marker)
           case None => None
-        }
-        Left(winningPlayer)
+        }))
       } else {
-        val newGameBoard = gameBoard.makeMove(move)
-        val newGame = copy(
-          gameBoard = newGameBoard,
-          playerQueue = playerQueue.tail :+ currentPlayer
-        )
-        Right(newGame)
+        Success(Right(nextGame))
       }
-      Success(moveResult)
     } else {
-      Failure(new TicTacUhOh("You tried an invalid move"))
+      Failure(
+        new TicTacUhOh(
+          s"${player.displayName} made an invalid move at row ${move.position.row}, col ${move.position.col}"
+        )
+      )
     }
   }
 }

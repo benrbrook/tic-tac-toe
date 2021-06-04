@@ -72,8 +72,12 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
 
   override def cellHasMarker(position: Position): Boolean =
     cells.find(cell => cell.position == position) match {
-      case Some(_) => true
-      case None    => false
+      case Some(cell) =>
+        cell.placedMarker match {
+          case Some(_) => true
+          case None    => false
+        }
+      case None => false
     }
 
   override def placeMove(move: Move): GameGrid = {

@@ -1,15 +1,20 @@
 package com.carvana.tic.tac.toe
 
 import com.carvana.tic.tac.toe.game.{
+  ClassicGame,
+  ClassicGameBoard,
   ClassicGameGrid,
   Game,
   GameBoard,
   GameGrid,
-  Player
+  Player,
+  StandardPlayer
 }
-import com.carvana.tic.tac.toe.models.{Cell, Move, Position}
+import com.carvana.tic.tac.toe.models.{Cell, Move, O, Position, X}
 
+import scala.io.StdIn.readLine
 import scala.annotation.tailrec
+import scala.util.{Failure, Success}
 
 /* NOTE:
 
@@ -25,14 +30,54 @@ trait TicTacIO {
     * @param player The player the Move is for
     * @return
     */
-  def getMoveForPlayer(player: Player): Move = ???
+  def getMoveForPlayer(player: Player): Move = {
+    println(
+      s"Enter a move for player ${player.displayName} with marker ${if (player.marker == X) "X"
+      else "O"}"
+    )
+    print("Enter position as row,col: ")
+    val Array(row, col) = readLine.split(",").map(_.toInt)
+
+    Move(Position(row, col), player.marker)
+  }
 
   /**
     * A utility method to display something useful about the current Game
     * state to the world.
     * @param game
     */
-  def displayGameState(game: Game): Unit = ???
+  def displayGameState(game: Game): Unit = {
+    println(s"Current player: ${game.currentPlayer.displayName}")
+
+    val dimension = game.gameBoard.grid.dimension
+    val cells = game.gameBoard.grid.cells
+    val gridWidth = dimension * 4 + 1
+    val spacingPrefix = "    "
+    val gridBoundary = spacingPrefix + "-".repeat(gridWidth)
+    val rowMarkers =
+      spacingPrefix + "| " + (0 until dimension).mkString(" | ") + " |"
+
+    println(rowMarkers)
+    println(gridBoundary)
+    cells
+      .grouped(dimension)
+      .toSeq
+      .zipWithIndex
+      .foreach {
+        case (line, index) => {
+          print(s"| $index |")
+          line.foreach(cell => {
+            val cellContents = cell.placedMarker match {
+              case Some(marker) => if (marker == X) "X" else "O"
+              case None         => " "
+            }
+            print(s" ${cellContents} |")
+          })
+          println("")
+        }
+      }
+    println(gridBoundary)
+  }
 
 }
 
@@ -42,11 +87,15 @@ trait TicTacIO {
 trait GameSetUp {
   // Set Up
   val dimension: Int = 3
-  val emptyCells: Seq[Cell] = ???
+  val emptyCells: Seq[Cell] = for {
+    row <- 0 until dimension
+    col <- 0 until dimension
+  } yield Cell(Position(row, col), None)
   val emptyGrid: GameGrid = ClassicGameGrid(dimension, emptyCells)
-  val cleanBoard: GameBoard = ???
-  val playerQueue: LazyList[Player] = ???
-  val newGame: Game = ???
+  val cleanBoard: GameBoard = ClassicGameBoard(emptyGrid)
+  val playerQueue: LazyList[Player] =
+    LazyList(StandardPlayer("John", X), StandardPlayer("Jane", O))
+  val newGame: Game = ClassicGame(cleanBoard, playerQueue)
 }
 
 trait GamePlayLogic {
@@ -58,7 +107,24 @@ trait GamePlayLogic {
     * @param ioOperator The method we are getting input to make Moves for a User
     * @return
     */
-  final def playGame(game: Game)(ioOperator: TicTacIO): Option[Player] = ???
+  final def playGame(game: Game)(ioOperator: TicTacIO): Option[Player] = {
+    ioOperator.displayGameState(game)
+    val currentPlayer = game.currentPlayer
+    val move = ioOperator.getMoveForPlayer(currentPlayer)
+    val moveResult = game.makeMoveForPlayer(currentPlayer, move)
+    moveResult match {
+      case Success(validMove) => {
+        validMove match {
+          case Left(player)    => player
+          case Right(nextGame) => playGame(nextGame)(ioOperator)
+        }
+      }
+      case Failure(ex) => {
+        println(ex.getMessage)
+        playGame(game)(ioOperator)
+      }
+    }
+  }
 
 }
 
