@@ -25,7 +25,7 @@ class GameBoardSpec extends AnyFlatSpec with should.Matchers with GameSetUp {
     assert(nextGameBoard != cleanBoard)
   }
 
-  it should "identify moves that are not valid" in {
+  "A GameBoard" should "identify moves that are not valid" in {
     val nextGameBoard = cleanBoard.makeMove(Move(Position(0, 0), X))
     assert(!nextGameBoard.isMoveValid(Move(Position(0, 0), O)))
   }
