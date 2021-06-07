@@ -1,8 +1,8 @@
 package com.carvana.tic.tac.toe.game
 
 import com.carvana.tic.tac.toe.models.Move
-
 import scala.util.{Failure, Success, Try}
+import com.typesafe.scalalogging.LazyLogging
 
 /**
   * An trait representing an instance of a Tic Tac Toe Game.
@@ -48,7 +48,8 @@ class TicTacUhOh(message: String) extends Exception(message)
   * @param playerQueue A stream of Players, in turn order
   */
 case class ClassicGame(gameBoard: GameBoard, playerQueue: LazyList[Player])
-    extends Game {
+    extends Game
+    with LazyLogging {
 
   override val currentPlayer: Player = playerQueue.head
 
@@ -56,27 +57,52 @@ case class ClassicGame(gameBoard: GameBoard, playerQueue: LazyList[Player])
       player: Player,
       move: Move
   ): Try[Either[Option[Player], Game]] = {
+    logger.debug(
+      s"${currentPlayer.displayName} attempted move: Position (${move.position.row}, ${move.position.col}), Marker ${move.marker}"
+    )
+
     if (gameBoard.isMoveValid(move)) {
       val nextGameBoard = gameBoard.makeMove(move)
+      logger.debug("Move was successful")
       val nextGame = copy(
         gameBoard = nextGameBoard,
         playerQueue = playerQueue.tail :+ currentPlayer
       )
 
       if (nextGameBoard.isGameOver) {
+        logger.debug("The game is over!")
+
         Success(Left(nextGameBoard.winningMarker match {
-          case Some(marker) =>
-            playerQueue.find(player => player.marker == marker)
-          case None => None
+          case Some(marker) => {
+            val winner = playerQueue.find(player => player.marker == marker)
+            winner match {
+              case Some(player) =>
+                logger.debug(s"Player ${player.displayName} won!")
+              case None => {
+                logger.error(
+                  s"A player for marker ${marker} could not be found"
+                )
+              }
+            }
+
+            winner
+          }
+          case None => {
+            logger.debug("The game ended in a tie!")
+
+            None
+          }
         }))
       } else {
         Success(Right(nextGame))
       }
     } else {
+      val errorMessage =
+        s"${player.displayName} made an invalid move at Position (${move.position.row}, ${move.position.col}), Marker: ${move.marker}"
+      logger.error(errorMessage)
+
       Failure(
-        new TicTacUhOh(
-          s"${player.displayName} made an invalid move at row ${move.position.row}, col ${move.position.col}"
-        )
+        new TicTacUhOh(errorMessage)
       )
     }
   }

@@ -1,6 +1,7 @@
 package com.carvana.tic.tac.toe.game
 
 import com.carvana.tic.tac.toe.models.{Marker, Move}
+import com.typesafe.scalalogging.LazyLogging
 
 /**
   * A trait representing an instance of Tic Tac Toe GameBoard.
@@ -42,13 +43,19 @@ trait GameBoard {
   * A classic implementation of a Tic Tac Toe GameBoard
   * @param grid
   */
-case class ClassicGameBoard(grid: GameGrid) extends GameBoard {
+case class ClassicGameBoard(grid: GameGrid) extends GameBoard with LazyLogging {
 
   override val isGameOver: Boolean = grid.winningMarker match {
-    case Some(_) => true
+    case Some(_) => {
+      logger.debug("Game is over with a winner")
+      true
+    }
     case None =>
       grid.unplacedPositions match {
-        case 0 => true
+        case 0 => {
+          logger.debug("Game is over with a tie")
+          true
+        }
         case _ => false
       }
   }
@@ -56,7 +63,9 @@ case class ClassicGameBoard(grid: GameGrid) extends GameBoard {
   override val winningMarker: Option[Marker] = grid.winningMarker
 
   override def isMoveValid(move: Move): Boolean =
-    !grid.cellHasMarker(move.position)
+    !grid.cellHasMarker(
+      move.position
+    ) && (0 until grid.dimension contains move.position.col) && (0 until grid.dimension contains move.position.row)
 
   override def makeMove(move: Move): GameBoard = {
     val newGrid = grid.placeMove(move)

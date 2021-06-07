@@ -7,14 +7,15 @@ import com.carvana.tic.tac.toe.game.{
   Game,
   GameBoard,
   GameGrid,
+  NotSoClassicGameGrid,
   Player,
   StandardPlayer
 }
 import com.carvana.tic.tac.toe.models.{Cell, Move, O, Position, X}
 
 import scala.io.StdIn.readLine
-import scala.annotation.tailrec
 import scala.util.{Failure, Success}
+import com.typesafe.scalalogging.LazyLogging
 
 /* NOTE:
 
@@ -91,14 +92,14 @@ trait GameSetUp {
     row <- 0 until dimension
     col <- 0 until dimension
   } yield Cell(Position(row, col), None)
-  val emptyGrid: GameGrid = ClassicGameGrid(dimension, emptyCells)
+  val emptyGrid: GameGrid = NotSoClassicGameGrid(dimension, emptyCells)
   val cleanBoard: GameBoard = ClassicGameBoard(emptyGrid)
   val playerQueue: LazyList[Player] =
     LazyList(StandardPlayer("John", X), StandardPlayer("Jane", O))
   val newGame: Game = ClassicGame(cleanBoard, playerQueue)
 }
 
-trait GamePlayLogic {
+trait GamePlayLogic extends LazyLogging {
 
   /**
     * A tail-recursive method that plays a Game to completion, with input given
@@ -110,15 +111,17 @@ trait GamePlayLogic {
   final def playGame(game: Game)(ioOperator: TicTacIO): Option[Player] = {
     ioOperator.displayGameState(game)
     val currentPlayer = game.currentPlayer
+    logger.debug(s"Current player: ${currentPlayer.displayName}")
+
     val move = ioOperator.getMoveForPlayer(currentPlayer)
     val moveResult = game.makeMoveForPlayer(currentPlayer, move)
 
     moveResult match {
       case Success(validMove) => {
         validMove match {
-          case Left(player) => {
+          case Left(winner) => {
             ioOperator.displayGameState(game)
-            player
+            winner
           }
           case Right(nextGame) => playGame(nextGame)(ioOperator)
         }
@@ -135,8 +138,13 @@ trait GamePlayLogic {
 /**
   * Our Main entry point - nothing new here _needs_ to be implemented, beyond the Traits above!
   */
-object Main extends App with GameSetUp with GamePlayLogic with TicTacIO {
-
+object Main
+    extends App
+    with GameSetUp
+    with GamePlayLogic
+    with TicTacIO
+    with LazyLogging {
+  logger.info("Starting game...")
   // Play the game
   playGame(newGame)(ioOperator = this) match {
     case Some(player) => println(s"\n---\n${player.displayName} wins!")

@@ -25,9 +25,13 @@ class GameBoardSpec extends AnyFlatSpec with should.Matchers with GameSetUp {
     assert(nextGameBoard != cleanBoard)
   }
 
-  "A GameBoard" should "identify moves that are not valid" in {
+  "A GameBoard" should "identify moves that are not valid because the spot is occupied" in {
     val nextGameBoard = cleanBoard.makeMove(Move(Position(0, 0), X))
     assert(!nextGameBoard.isMoveValid(Move(Position(0, 0), O)))
+  }
+
+  it should "identify invalid moves that are out of bounds" in {
+    assert(!cleanBoard.isMoveValid(Move(Position(-1, 10), O)))
   }
 
   it should "be over when the grid has a winning state" in {
@@ -35,6 +39,17 @@ class GameBoardSpec extends AnyFlatSpec with should.Matchers with GameSetUp {
       row <- 0 until dimension
       col <- 0 until dimension
     } yield Cell(Position(row, col), if (row == 0) Some(X) else None)
+    val winningGrid = ClassicGameGrid(3, winningCells)
+    val winningBoard = ClassicGameBoard(winningGrid)
+    assert(winningBoard.isGameOver)
+    assert(winningBoard.winningMarker.contains(X))
+  }
+
+  it should "be over when the grid has a diagonal winning state" in {
+    val winningCells = for {
+      row <- 0 until dimension
+      col <- 0 until dimension
+    } yield Cell(Position(row, col), if (row == col) Some(X) else None)
     val winningGrid = ClassicGameGrid(3, winningCells)
     val winningBoard = ClassicGameBoard(winningGrid)
     assert(winningBoard.isGameOver)

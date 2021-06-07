@@ -1,6 +1,7 @@
 package com.carvana.tic.tac.toe.game
 
-import com.carvana.tic.tac.toe.models.{Cell, Position, Marker, Move}
+import com.carvana.tic.tac.toe.models.{Cell, Marker, Move, Position}
+import com.typesafe.scalalogging.LazyLogging
 
 /**
   * A trait representing the state of a GameGrid. The GameGrid handles much of the logic
@@ -49,7 +50,8 @@ trait GameGrid {
   * @param cells The Collection of Cells, representing all possible Positions on the GameGrid.
   */
 case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
-    extends GameGrid {
+    extends GameGrid
+    with LazyLogging {
 
   override val unplacedPositions: Int =
     dimension * dimension - cells.count(cell => cellHasMarker(cell.position))
@@ -65,8 +67,21 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
     val possibleWinners = (rows ++ columns :+ diagonal :+ inverseDiagonal)
       .filter(hasWinningMarker)
     possibleWinners.headOption match {
-      case Some(cells) => cells.head.placedMarker
-      case None        => None
+      case Some(cells) => {
+        val winningMarker = cells.head.placedMarker
+        winningMarker match {
+          case Some(marker) => logger.debug(s"Found winning marker ${marker}")
+          case None =>
+            logger.error(
+              "A cell with no placed marker was part of a winning row!"
+            )
+        }
+        winningMarker
+      }
+      case None => {
+        logger.debug(s"No winning marker found")
+        None
+      }
     }
   }
 
@@ -74,13 +89,31 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
     cells.find(cell => cell.position == position) match {
       case Some(cell) =>
         cell.placedMarker match {
-          case Some(_) => true
-          case None    => false
+          case Some(_) => {
+            logger.debug(
+              s"Marker found in cell with Position (${position.row}, ${position.col})"
+            )
+            true
+          }
+          case None => {
+            logger.debug(
+              s"No marker found in cell with Position (${position.row}, ${position.col})"
+            )
+            false
+          }
         }
-      case None => false
+      case None => {
+        logger.debug(
+          s"No marker found in cell with Position (${position.row}, ${position.col})"
+        )
+        false
+      }
     }
 
   override def placeMove(move: Move): GameGrid = {
+    logger.debug(
+      s"Placing move with Position (${move.position.row}, ${move.position.col}), Marker ${move.marker}"
+    )
     val newCells = cells.map(cell =>
       cell.position match {
         case move.position => cell.copy(placedMarker = Some(move.marker))
@@ -97,3 +130,6 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
     )
   }
 }
+
+case class NotSoClassicGameGrid(override val dimension: 3)
+    extends ClassicGameGrid
