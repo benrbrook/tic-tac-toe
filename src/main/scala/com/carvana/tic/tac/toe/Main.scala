@@ -112,10 +112,14 @@ trait GamePlayLogic {
     val currentPlayer = game.currentPlayer
     val move = ioOperator.getMoveForPlayer(currentPlayer)
     val moveResult = game.makeMoveForPlayer(currentPlayer, move)
+
     moveResult match {
       case Success(validMove) => {
         validMove match {
-          case Left(player)    => player
+          case Left(player) => {
+            ioOperator.displayGameState(game)
+            player
+          }
           case Right(nextGame) => playGame(nextGame)(ioOperator)
         }
       }

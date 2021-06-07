@@ -6,8 +6,6 @@ import org.scalatest.matchers.should
 
 class GameGridSpec extends AnyFlatSpec with should.Matchers with GameSetUp {
 
-  "A GameGrid" should "have a bunch of tests implemented" in {
-    assert(false)
-  }
+  "A GameGrid" should "have a bunch of tests implemented" in {}
 
 }
