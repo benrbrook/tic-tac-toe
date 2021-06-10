@@ -79,7 +79,7 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
       case Some(cells) =>
         val winningMarker = cells.head.placedMarker
         winningMarker match {
-          case Some(marker) => logger.debug(s"Found winning marker ${marker}")
+          case Some(marker) => logger.debug(s"Found winning marker $marker")
           case None =>
             logger.error(
               "A cell with no placed marker was part of a winning row!"
