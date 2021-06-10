@@ -7,7 +7,6 @@ import com.carvana.tic.tac.toe.game.{
   Game,
   GameBoard,
   GameGrid,
-  NotSoClassicGameGrid,
   Player,
   StandardPlayer
 }
@@ -92,7 +91,7 @@ trait GameSetUp {
     row <- 0 until dimension
     col <- 0 until dimension
   } yield Cell(Position(row, col), None)
-  val emptyGrid: GameGrid = NotSoClassicGameGrid(dimension, emptyCells)
+  val emptyGrid: GameGrid = ClassicGameGrid(cells = emptyCells)
   val cleanBoard: GameBoard = ClassicGameBoard(emptyGrid)
   val playerQueue: LazyList[Player] =
     LazyList(StandardPlayer("John", X), StandardPlayer("Jane", O))

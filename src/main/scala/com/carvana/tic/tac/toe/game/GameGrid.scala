@@ -130,6 +130,3 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
     )
   }
 }
-
-case class NotSoClassicGameGrid(override val dimension: 3)
-    extends ClassicGameGrid
