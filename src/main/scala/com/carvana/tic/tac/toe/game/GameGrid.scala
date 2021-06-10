@@ -94,10 +94,10 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
   }
 
   override def cellHasMarker(position: Position): Boolean = {
-    // Assuming the cells are in sorted order.
-    // If not I would use cells.find(cell => cell.position == position)
     val markerSuffix =
       s"found in cell with Position (${position.row}, ${position.col})"
+    // Assuming the cells are in sorted order.
+    // If not I would use cells.find(cell => cell.position == position)
     val cellIndex = position.row * dimension + position.col
     cells.lift(cellIndex) match {
       case Some(cell) =>
