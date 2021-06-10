@@ -120,13 +120,13 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
       s"Placing move: Position (${move.position.row}, ${move.position.col}), " +
         s"Marker ${move.marker}"
     )
-    val newCells = cells.map(cell =>
+    val nextCells = cells.map(cell =>
       cell.position match {
         case move.position => cell.copy(placedMarker = Some(move.marker))
         case _             => cell
       }
     )
-    copy(cells = newCells)
+    copy(cells = nextCells)
   }
 
   private def hasWinningMarker(potentialWinner: Seq[Cell]) = {
