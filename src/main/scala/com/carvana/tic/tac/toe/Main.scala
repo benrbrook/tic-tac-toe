@@ -38,12 +38,12 @@ trait TicTacIO {
     print("Enter position as row,col: ")
 
     readLine.replaceAll("\\s", "").split(",") match {
+      // Matching on a two digit array
       case Array(row, col) if row.matches("\\d+") && col.matches("\\d+") =>
         Move(Position(row.toInt, col.toInt), player.marker)
-      case _ => {
+      case _ =>
         println("Invalid input, please enter again")
         getMoveForPlayer(player)
-      }
     }
   }
 
@@ -66,21 +66,20 @@ trait TicTacIO {
     println(rowMarkers)
     println(gridBoundary)
     cells
-      .grouped(dimension)
+      .grouped(dimension) // Split into rows to print one row at a time
       .toSeq
       .zipWithIndex
       .foreach {
-        case (line, index) => {
+        case (line, index) =>
           print(s"| $index |")
           line.foreach(cell => {
             val cellContents = cell.placedMarker match {
-              case Some(marker) => if (marker == X) "X" else "O"
+              case Some(marker) => marker
               case None         => " "
             }
             print(s" ${cellContents} |")
           })
           println("")
-        }
       }
     println(gridBoundary)
   }
@@ -122,19 +121,16 @@ trait GamePlayLogic extends LazyLogging {
     val moveResult = game.makeMoveForPlayer(currentPlayer, move)
 
     moveResult match {
-      case Success(validMove) => {
+      case Success(validMove) =>
         validMove match {
-          case Left(winner) => {
+          case Left(winner) =>
             ioOperator.displayGameState(game)
             winner
-          }
           case Right(nextGame) => playGame(nextGame)(ioOperator)
         }
-      }
-      case Failure(ex) => {
+      case Failure(ex) =>
         println(ex.getMessage)
         playGame(game)(ioOperator)
-      }
     }
   }
 

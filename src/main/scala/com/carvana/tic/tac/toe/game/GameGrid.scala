@@ -56,6 +56,15 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
   override val unplacedPositions: Int =
     dimension * dimension - cells.count(cell => cellHasMarker(cell.position))
 
+  // I wasn't sure if we wanted to modify the constructor of the game grid.
+  // If we did this algorithm could probably be sped up. We would keep track of
+  // the number of distinct markers in each row, column, and diagonal.
+  // We update the appropriate data structure when a move is made. Checking
+  // if there is a winner becomes faster because we can just check if the counts
+  // equal the dimensions of the grid. If they do, then there is a winner in
+  // that particular sequence. I implemented this assuming that we are keeping
+  // the constructor the same and therefore not passing these counts from
+  // instance to instance.
   override val winningMarker: Option[Marker] = {
     val rows = cells.groupBy(_.position.row).valuesIterator.toSeq
     val columns = cells.groupBy(_.position.col).valuesIterator.toSeq
@@ -67,7 +76,7 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
     val possibleWinners = (rows ++ columns :+ diagonal :+ inverseDiagonal)
       .filter(hasWinningMarker)
     possibleWinners.headOption match {
-      case Some(cells) => {
+      case Some(cells) =>
         val winningMarker = cells.head.placedMarker
         winningMarker match {
           case Some(marker) => logger.debug(s"Found winning marker ${marker}")
@@ -77,42 +86,39 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
             )
         }
         winningMarker
-      }
-      case None => {
+
+      case None =>
         logger.debug(s"No winning marker found")
         None
-      }
     }
   }
 
-  override def cellHasMarker(position: Position): Boolean =
-    cells.find(cell => cell.position == position) match {
+  override def cellHasMarker(position: Position): Boolean = {
+    // Assuming the cells are in sorted order.
+    // If not I would use cells.find(cell => cell.position == position)
+    val markerSuffix =
+      s"found in cell with Position (${position.row}, ${position.col})"
+    val cellIndex = position.row * dimension + position.col
+    cells.lift(cellIndex) match {
       case Some(cell) =>
         cell.placedMarker match {
-          case Some(_) => {
-            logger.debug(
-              s"Marker found in cell with Position (${position.row}, ${position.col})"
-            )
+          case Some(_) =>
+            logger.debug(s"Marker " + markerSuffix)
             true
-          }
-          case None => {
-            logger.debug(
-              s"No marker found in cell with Position (${position.row}, ${position.col})"
-            )
+          case None =>
+            logger.debug(s"No marker " + markerSuffix)
             false
-          }
         }
-      case None => {
-        logger.debug(
-          s"No marker found in cell with Position (${position.row}, ${position.col})"
-        )
+      case None =>
+        logger.debug(s"No marker " + markerSuffix)
         false
-      }
     }
+  }
 
   override def placeMove(move: Move): GameGrid = {
     logger.debug(
-      s"Placing move with Position (${move.position.row}, ${move.position.col}), Marker ${move.marker}"
+      s"Placing move: Position (${move.position.row}, ${move.position.col}), " +
+        s"Marker ${move.marker}"
     )
     val newCells = cells.map(cell =>
       cell.position match {
@@ -123,9 +129,12 @@ case class ClassicGameGrid(dimension: Int = 3, cells: Seq[Cell])
     copy(cells = newCells)
   }
 
-  private def hasWinningMarker(cells: Seq[Cell]) = {
-    val firstMarker = cells.head.placedMarker
-    cells.forall(cell =>
+  private def hasWinningMarker(potentialWinner: Seq[Cell]) = {
+    val firstMarker = potentialWinner.headOption match {
+      case Some(cell) => cell.placedMarker
+      case None       => None
+    }
+    potentialWinner.forall(cell =>
       cell.placedMarker == firstMarker && cell.placedMarker.isDefined
     )
   }

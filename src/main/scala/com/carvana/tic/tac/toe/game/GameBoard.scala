@@ -46,30 +46,32 @@ trait GameBoard {
 case class ClassicGameBoard(grid: GameGrid) extends GameBoard with LazyLogging {
 
   override val isGameOver: Boolean = grid.winningMarker match {
-    case Some(_) => {
+    case Some(_) =>
       logger.debug("Game is over with a winner")
       true
-    }
     case None =>
       grid.unplacedPositions match {
-        case 0 => {
+        // A game that has no winner with no unplaced positions has ended in a tie
+        case 0 =>
           logger.debug("Game is over with a tie")
           true
-        }
         case _ => false
       }
   }
 
   override val winningMarker: Option[Marker] = grid.winningMarker
 
-  override def isMoveValid(move: Move): Boolean =
+  override def isMoveValid(move: Move): Boolean = {
+    val rowWithinBounds = 0 until grid.dimension contains move.position.col
+    val colWithinBounds = 0 until grid.dimension contains move.position.row
     !grid.cellHasMarker(
       move.position
-    ) && (0 until grid.dimension contains move.position.col) && (0 until grid.dimension contains move.position.row)
+    ) && rowWithinBounds && colWithinBounds
+  }
 
   override def makeMove(move: Move): GameBoard = {
-    val newGrid = grid.placeMove(move)
-    copy(grid = newGrid)
+    val nextGrid = grid.placeMove(move)
+    copy(grid = nextGrid)
   }
 
 }

@@ -58,49 +58,47 @@ case class ClassicGame(gameBoard: GameBoard, playerQueue: LazyList[Player])
       move: Move
   ): Try[Either[Option[Player], Game]] = {
     logger.debug(
-      s"${currentPlayer.displayName} attempted move: Position (${move.position.row}, ${move.position.col}), Marker ${move.marker}"
+      s"${currentPlayer.displayName} attempted move: " +
+        s"Position (${move.position.row}, ${move.position.col}), " +
+        s"Marker ${move.marker}"
     )
 
     if (gameBoard.isMoveValid(move)) {
       val nextGameBoard = gameBoard.makeMove(move)
       logger.debug("Move was successful")
-      val nextGame = copy(
-        gameBoard = nextGameBoard,
-        playerQueue = playerQueue.tail :+ currentPlayer
-      )
 
       if (nextGameBoard.isGameOver) {
         logger.debug("The game is over!")
-
         Success(Left(nextGameBoard.winningMarker match {
-          case Some(marker) => {
+          case Some(marker) =>
             val winner = playerQueue.find(player => player.marker == marker)
+            // Matching the winner to determine what to log
             winner match {
               case Some(player) =>
                 logger.debug(s"Player ${player.displayName} won!")
-              case None => {
+              case None =>
                 logger.error(
                   s"A player for marker ${marker} could not be found"
                 )
-              }
             }
-
             winner
-          }
-          case None => {
+          case None =>
             logger.debug("The game ended in a tie!")
-
             None
-          }
         }))
       } else {
+        val nextGame = copy(
+          gameBoard = nextGameBoard,
+          playerQueue = playerQueue.tail :+ currentPlayer
+        )
         Success(Right(nextGame))
       }
     } else {
       val errorMessage =
-        s"${player.displayName} made an invalid move at Position (${move.position.row}, ${move.position.col}), Marker: ${move.marker}"
+        s"${player.displayName} made an invalid move: " +
+          s"Position (${move.position.row}, ${move.position.col}), " +
+          s"Marker: ${move.marker}"
       logger.error(errorMessage)
-
       Failure(
         new TicTacUhOh(errorMessage)
       )
