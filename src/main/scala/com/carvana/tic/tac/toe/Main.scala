@@ -36,9 +36,15 @@ trait TicTacIO {
       else "O"}"
     )
     print("Enter position as row,col: ")
-    val Array(row, col) = readLine.split(",").map(_.toInt)
 
-    Move(Position(row, col), player.marker)
+    readLine.replaceAll("\\s", "").split(",") match {
+      case Array(row, col) if row.matches("\\d+") && col.matches("\\d+") =>
+        Move(Position(row.toInt, col.toInt), player.marker)
+      case _ => {
+        println("Invalid input, please enter again")
+        getMoveForPlayer(player)
+      }
+    }
   }
 
   /**
