@@ -15,18 +15,19 @@ class GameBoardSpec extends AnyFlatSpec with should.Matchers with GameSetUp {
     assert(cleanBoard.winningMarker.isEmpty)
   }
 
-  it should "be able to make any move on the GameGrid, for either X or O" in {
-    val nextGameBoard = cleanBoard.makeMove(Move(Position(0, 0), X))
+  trait NextGameBoard {
+    val nextGameBoard: GameBoard = cleanBoard.makeMove(Move(Position(0, 0), X))
+  }
+
+  "A GameBoard" should "be able to make any move on the GameGrid, for either X or O" in new NextGameBoard {
     nextGameBoard shouldBe a[GameBoard]
   }
 
-  it should "be able to make a move, resulting in a new and different state" in {
-    val nextGameBoard = cleanBoard.makeMove(Move(Position(0, 0), X))
+  it should "be able to make a move, resulting in a new and different state" in new NextGameBoard {
     assert(nextGameBoard != cleanBoard)
   }
 
-  "A GameBoard" should "identify moves that are not valid because the spot is occupied" in {
-    val nextGameBoard = cleanBoard.makeMove(Move(Position(0, 0), X))
+  it should "identify moves that are not valid because the spot is occupied" in new NextGameBoard {
     assert(!nextGameBoard.isMoveValid(Move(Position(0, 0), O)))
   }
 
